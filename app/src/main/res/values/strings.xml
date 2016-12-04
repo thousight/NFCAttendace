@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">NFCAttendance</string>
+    <string name="continue_as">Continue as:</string>
+    <string name="student">Student</string>
+    <string name="professor">Professor</string>
+    <string name="ExampleStudentName">John Doe</string>
 </resources>

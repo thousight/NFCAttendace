@@ -11,4 +11,31 @@
     android:orientation="vertical"
     tools:context="com.example.markwen.nfcattendance.MainActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/continue_as"
+        android:gravity="center"
+        android:textSize="30sp"
+        android:layout_marginTop="50dp"/>
+
+    <RelativeLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:layout_gravity="center">
+        <Button
+            android:id="@+id/studentButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/student"/>
+        <Button
+            android:id="@+id/professorButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/professor"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            tools:ignore="RelativeOverlap" />
+    </RelativeLayout>
 </LinearLayout>

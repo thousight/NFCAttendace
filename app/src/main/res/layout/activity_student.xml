@@ -10,5 +10,11 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     tools:context="com.example.markwen.nfcattendance.MainActivity">
-
+    <EditText
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/studentNameEditText"
+        android:hint="@string/ExampleStudentName"
+        android:layout_gravity="center"
+        android:gravity="center"/>
 </LinearLayout>
