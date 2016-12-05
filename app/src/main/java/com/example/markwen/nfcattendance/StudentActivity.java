@@ -1,9 +1,11 @@
 package com.example.markwen.nfcattendance;
 
+import android.content.Context;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.nfc.NfcManager;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.support.v7.app.AppCompatActivity;
@@ -18,13 +20,15 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
     EditText studentNameEditText;
     String studentName;
     NfcAdapter nfcAdapter;
-    private String android_id = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+    private String android_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_student);
         setTitle("Student");
+
+        android_id = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 
         studentNameEditText = (EditText) findViewById(R.id.studentNameEditText);
         studentNameEditText.addTextChangedListener(new TextWatcher() {
@@ -43,7 +47,8 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
                 studentName = editable.toString();
             }
         });
-        NfcAdapter.getDefaultAdapter(this);
+        NfcManager manager = (NfcManager) getSystemService(Context.NFC_SERVICE);
+        nfcAdapter = manager.getDefaultAdapter();
         if (nfcAdapter != null) {
             //This will refer back to createNdefMessage for what it will send
             nfcAdapter.setNdefPushMessageCallback(this, this);
