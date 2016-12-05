@@ -21,26 +21,26 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:text="Create Directory Files"
+        android:text="Pick Start and End Times"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button2"
+        android:id="@+id/buttonTime"
         android:layout_below="@+id/titleEditText"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="71dp"
-        android:layout_alignRight="@+id/button4"
-        android:layout_alignEnd="@+id/button4" />
+         />
 
     <Button
-        android:text="Pick Start and End Times"
+        android:text="Create Directory Files"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/button2"
+        android:layout_below="@+id/buttonTime"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="49dp"
-        android:id="@+id/button4" />
+        android:id="@+id/buttonCreate"
+        android:layout_alignEnd="@+id/buttonTime" />
 
     <EditText
         android:layout_width="wrap_content"

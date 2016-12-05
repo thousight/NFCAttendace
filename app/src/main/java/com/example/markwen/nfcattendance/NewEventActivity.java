@@ -1,5 +1,6 @@
 package com.example.markwen.nfcattendance;
 
+import android.content.Intent;
 import android.icu.util.Output;
 import android.os.Environment;
 import android.support.v7.app.AlertDialog;
@@ -29,8 +30,8 @@ public class NewEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
-        Button createButton = (Button) findViewById(R.id.button2);
-        Button pickButton = (Button) findViewById(R.id.button4);
+        Button createButton = (Button) findViewById(R.id.buttonCreate);
+        Button pickButton = (Button) findViewById(R.id.buttonTime);
         final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath(); //find external storage path
 
         final View dialogView = View.inflate(this, R.layout.datetimepicker, null);
@@ -52,8 +53,9 @@ public class NewEventActivity extends AppCompatActivity {
                         timePicker.getCurrentMinute());
 
                 start_time = calendar.getTimeInMillis();
-                Toast.makeText(getBaseContext(), "Start time saved as " + start_time.toString(), Toast.LENGTH_SHORT).show();
-            }});
+                Toast.makeText(getBaseContext(), "Start time saved", Toast.LENGTH_SHORT).show();
+            }
+        });
         dialogView.findViewById(R.id.end_time_set).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,14 +70,16 @@ public class NewEventActivity extends AppCompatActivity {
                         timePicker.getCurrentMinute());
 
                 end_time = calendar.getTimeInMillis();
-                Toast.makeText(getBaseContext(), "End time saved as " + end_time.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), "End time saved", Toast.LENGTH_SHORT).show();
 
-            }});
+            }
+        });
         dialogView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 alertDialog.dismiss();
-            }});
+            }
+        });
 
         createButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -85,15 +89,11 @@ public class NewEventActivity extends AppCompatActivity {
                 title = titleET.getText().toString();
                 if (title.equals("")) {
                     Toast.makeText(getBaseContext(), "Please enter a title", Toast.LENGTH_SHORT).show();
-                }
-                else if (start_time == 0L) {
+                } else if (start_time == 0L) {
                     Toast.makeText(getBaseContext(), "Please choose a start time first", Toast.LENGTH_SHORT).show();
-                }
-                else if (end_time == 0L) {
+                } else if (end_time == 0L) {
                     Toast.makeText(getBaseContext(), "Please choose an end time first", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
+                } else {
                     final File directory = new File(strSdPath + "/NFCAttendance/");
                     directory.mkdir();
                     Toast.makeText(getBaseContext(), title + " directory created at " + strSdPath + "/NFCAttendance", Toast.LENGTH_SHORT).show();
@@ -112,6 +112,7 @@ public class NewEventActivity extends AppCompatActivity {
                             myOutWriter.append(str);
                             myOutWriter.close();
                             Toast.makeText(getBaseContext(), "Data file written", Toast.LENGTH_SHORT).show();
+                            moveToP(v);
                         } catch (Exception e) {
                             Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
@@ -128,9 +129,9 @@ public class NewEventActivity extends AppCompatActivity {
                 alertDialog.show();
             }
         });
-
-
     }
-
-
+    public void moveToP(View v) {
+        Intent mIntent = new Intent(this, ProfessorActivity.class);
+        startActivity(mIntent);
+    }
 }
