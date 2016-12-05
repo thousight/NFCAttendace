@@ -3,5 +3,7 @@
     <string name="continue_as">Continue as:</string>
     <string name="student">Student</string>
     <string name="professor">Professor</string>
-    <string name="ExampleStudentName">John Doe</string>
+    <string name="ExampleStudentName">e.g. John Doe</string>
+    <string name="please_put_your_first_and_last_name_below">Please put your first and last name below:</string>
+    <string name="tap_on_your_professor_s_phone_when_you_finished_typing_your_name">Tap on your professor\'s phone when you finished typing your name</string>
 </resources>
