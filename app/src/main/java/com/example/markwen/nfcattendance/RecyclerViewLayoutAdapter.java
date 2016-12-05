@@ -1,7 +1,6 @@
 package com.example.markwen.nfcattendance;
 
-import android.content.res.Resources;
-import android.support.v4.content.res.ResourcesCompat;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -42,10 +41,18 @@ public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerView
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
         TextView eventName;
-        EventViewHolder(View itemView) {
+        EventViewHolder(final View itemView) {
             super(itemView);
             cardView = (CardView)itemView.findViewById(R.id.cardView);
             eventName = (TextView)itemView.findViewById(R.id.eventName);
+            cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent displayEventIntent = new Intent(itemView.getContext(), EventViewHolder.class);
+                    displayEventIntent.putExtra("title", eventName.getText());
+                    itemView.getContext().startActivity(displayEventIntent);
+                }
+            });
         }
     }
 }
