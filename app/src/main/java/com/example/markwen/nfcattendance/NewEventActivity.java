@@ -131,7 +131,7 @@ public class NewEventActivity extends AppCompatActivity {
         });
     }
     public void moveToP(View v) {
-        Intent mIntent = new Intent(this, MainActivity.class);
+        Intent mIntent = new Intent(this, ProfessorActivity.class);
         startActivity(mIntent);
     }
 }

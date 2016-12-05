@@ -1,5 +1,7 @@
 package com.example.markwen.nfcattendance;
 
+import android.content.res.Resources;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,9 +25,8 @@ public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerView
 
     @Override
     public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview, parent, false);
-        EventViewHolder pvh = new EventViewHolder(v);
-        return pvh;
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card, parent, false);
+        return new EventViewHolder(v);
     }
 
     @Override

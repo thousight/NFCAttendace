@@ -36,7 +36,7 @@ public class EventDisplayActivity extends AppCompatActivity {
         }
 
         String title = mIntent.getStringExtra("string1");
-        TextView titleText = (TextView) findViewById((R.id.textView));
+        TextView titleText = (TextView) findViewById((R.id.titleTextView));
         if (title != null){
             titleText.setText(title);
         }
