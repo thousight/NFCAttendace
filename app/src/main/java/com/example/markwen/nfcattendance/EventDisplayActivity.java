@@ -18,6 +18,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 
 public class EventDisplayActivity extends AppCompatActivity {
 
@@ -33,7 +37,9 @@ public class EventDisplayActivity extends AppCompatActivity {
 
         String title = mIntent.getStringExtra("string1");
         TextView titleText = (TextView) findViewById((R.id.textView));
-        titleText.setText(title);
+        if (title != null){
+            titleText.setText(title);
+        }
         ListView listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<String>();
         final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -45,6 +51,15 @@ public class EventDisplayActivity extends AppCompatActivity {
         try {
             JSONObject event = new JSONObject(studentFile.toString());
             JSONArray students = new JSONArray(event.get("students"));
+            String starttime = (String)event.get("starttime");
+            String endtime = (String)event.get("endtime");
+            TextView startText = (TextView) findViewById((R.id.textStart));
+            TextView endText = (TextView) findViewById((R.id.textEnd));
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/DD/YYYY hh:mm"); //use formatter to help format millisecond time to readable time
+            starttime = formatter.format(startText);
+            starttime = formatter.format(endText);
+            startText.setText("Start time: " + starttime);
+            startText.setText("End time: " + endtime);
             displayStudents(students);
         } catch (Exception e) {
             Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();

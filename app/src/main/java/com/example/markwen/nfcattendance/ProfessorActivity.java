@@ -18,7 +18,7 @@ public class ProfessorActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        /*super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_professor);
         setTitle("Events");
 
@@ -29,6 +29,6 @@ public class ProfessorActivity extends AppCompatActivity {
         eventListRecyclerView = (RecyclerView)findViewById(R.id.eventListRecyclerView);
         listAdapter = new RecyclerViewLayoutAdapter(eventsNameList);
         listLayoutManager = new LinearLayoutManager(this);
-        eventListRecyclerView.setLayoutManager(listLayoutManager);
+        eventListRecyclerView.setLayoutManager(listLayoutManager);*/
     }
 }
