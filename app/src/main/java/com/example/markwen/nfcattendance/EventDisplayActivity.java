@@ -3,6 +3,7 @@ package com.example.markwen.nfcattendance;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -22,6 +23,8 @@ public class EventDisplayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_display);
+        getSupportActionBar().setElevation(0);
+        setTitle(" ");
         Intent mIntent = getIntent();
         if (mIntent == null) {
             return;
@@ -43,7 +46,8 @@ public class EventDisplayActivity extends AppCompatActivity {
             JSONArray students = new JSONArray(event.get("students"));
             displayStudents(students);
         } catch (Exception e) {
-            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            CharSequence errorMessage = e.getMessage();
+            Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
         }
     }
     public void displayStudents(JSONArray array) {
@@ -53,7 +57,8 @@ public class EventDisplayActivity extends AppCompatActivity {
             try {
                 studentList.add(array.getJSONObject(i).getString("name"));
             } catch (Exception e) {
-                Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                CharSequence errorMessage = e.getMessage();
+                Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
             }
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, studentList);

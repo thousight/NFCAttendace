@@ -8,6 +8,7 @@ import android.nfc.NfcEvent;
 import android.nfc.NfcManager;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -55,12 +56,10 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
 
             //This will be called if the message is sent successfully
             nfcAdapter.setOnNdefPushCompleteCallback(this, this);
-            Toast.makeText(this, "NFC available on this device, go ahead and tap on your professor's device.",
-                    Toast.LENGTH_LONG).show();
+            Snackbar.make(findViewById(R.id.studentNameEditText), "NFC available on this device, go ahead and tap on your professor's device.", Snackbar.LENGTH_LONG).show();
         }
         else {
-            Toast.makeText(this, "NFC not available on this device, join the iPhone users.",
-                    Toast.LENGTH_LONG).show();
+            Snackbar.make(findViewById(R.id.studentNameEditText), "NFC not available on this device.", Snackbar.LENGTH_LONG).show();
         }
     }
 
