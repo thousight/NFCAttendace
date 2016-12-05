@@ -28,7 +28,7 @@ public class EventDisplayActivity extends AppCompatActivity {
         }
 
         String title = mIntent.getStringExtra("title");
-        TextView titleText = (TextView) findViewById((R.id.textView));
+        TextView titleText = (TextView) findViewById(R.id.titleTextView);
         titleText.setText(title);
         ListView listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<String>();
