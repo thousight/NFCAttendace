@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
@@ -16,51 +17,74 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 
 
-public class EventDisplayActivity extends AppCompatActivity {
+public class EventDisplayActivity extends AppCompatActivity implements NfcAdapter.OnNdefPushCompleteCallback {
 
     ArrayList<String> studentList; //arraylist to handle list of students
     ArrayList<String> messagesReceivedArray = new ArrayList<String>(); //arraylist to handle messages received through NFC
+    TextView titleText, startTimeText, endTimeText, checkInStatus;
+    ListView listViewStudents;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_display);
         getSupportActionBar().setElevation(0);
-        setTitle(" ");
+        setTitle("");
         Intent mIntent = getIntent();
         if (mIntent == null) {
             return;
         }
 
+        titleText = (TextView) findViewById(R.id.titleTextView);
+        startTimeText = (TextView) findViewById(R.id.startTimeTextView);
+        endTimeText = (TextView) findViewById(R.id.endTimeTextView);
+        checkInStatus = (TextView) findViewById(R.id.checkInStatusTextView);
+
+        // Set title
         String title = mIntent.getStringExtra("title");
-        TextView titleText = (TextView) findViewById(R.id.titleTextView);
         titleText.setText(title);
 
+        listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<String>();
         final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File studentFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
 
-        //read
-        String text = "";
+        //reading file
+        JSONObject event;
+        JSONArray students;
+        File studentFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
+        BufferedReader br;
+        StringBuilder contentString = new StringBuilder();
+        try {
+            br = new BufferedReader(new FileReader(studentFile));
+            String line;
+            while ((line = br.readLine()) != null) {
+                contentString.append(line);
+            }
+            br.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         try {
-            JSONObject event = new JSONObject(studentFile.toString());
-            JSONArray students = new JSONArray(event.get("students"));
-            String starttime = (String)event.get("starttime");
-            String endtime = (String)event.get("endtime");
-            TextView startText = (TextView) findViewById((R.id.textStart));
-            TextView endText = (TextView) findViewById((R.id.textEnd));
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/DD/YYYY hh:mm"); //use formatter to help format millisecond time to readable time
-            starttime = formatter.format(startText);
-            starttime = formatter.format(endText);
-            startText.setText("Start time: " + starttime);
-            startText.setText("End time: " + endtime);
+            event = new JSONObject(contentString.toString());
+            students = event.getJSONArray("students");
+            Date startDateTime = new Date((Long) event.get("start_time"));
+            Date endDateTime = new Date((Long) event.get("end_time"));
+//            DateFormat formatter = new SimpleDateFormat("MM/DD/yyyy hh:mm"); //use formatter to help format millisecond time to readable time
+//            String starttime = formatter.parse(startDateTime.toString()).toString();
+//            String endtime = formatter.parse(endDateTime.toString()).toString();
+            startTimeText.setText("Start time: " + startDateTime.toString());
+            endTimeText.setText("End time:  " + endDateTime.toString());
             displayStudents(students);
         } catch (Exception e) {
             CharSequence errorMessage = e.getMessage();
@@ -82,11 +106,11 @@ public class EventDisplayActivity extends AppCompatActivity {
         listViewStudents.setAdapter(adapter);
     }
 
-    public void handleNfcIntent(Intent NfcIntent) {
-        ListView listViewStudents = (ListView) findViewById(R.id.studentListView);
+    public void handleNfcIntent(NfcEvent nfcEvent) {
+        listViewStudents = (ListView) findViewById(R.id.studentListView);
         ArrayAdapter<String> adapter;
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals (NfcIntent.getAction())) {
-            Parcelable[] receivedArray = NfcIntent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals (nfcEvent.getAction())) {
+            Parcelable[] receivedArray = nfcEvent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 
             if(receivedArray != null) {
                 messagesReceivedArray = new ArrayList<String>(); //clear string array
@@ -105,6 +129,11 @@ public class EventDisplayActivity extends AppCompatActivity {
     }
     @Override
     public void onNewIntent(Intent intent) {
-        handleNfcIntent(intent);
+//        handleNfcIntent(intent);
+    }
+
+    @Override
+    public void onNdefPushComplete(NfcEvent nfcEvent) {
+        handleNfcIntent(nfcEvent);
     }
 }
