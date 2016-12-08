@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnNdefPushCompleteCallback,
         NfcAdapter.CreateNdefMessageCallback {
@@ -76,12 +75,15 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
     }
 
     private NdefRecord[] createRecords() {
+        // Adding information into the message to be sent
         NdefRecord[] records = new NdefRecord[2];
+        // Student name
         records[0] = new NdefRecord(
                 NdefRecord.TNF_WELL_KNOWN,
                 NdefRecord.RTD_TEXT,
                 new byte[0],
                 studentName.getBytes());
+        // Device ID
         records[1] = new NdefRecord(
                 NdefRecord.TNF_WELL_KNOWN,
                 NdefRecord.RTD_TEXT,
