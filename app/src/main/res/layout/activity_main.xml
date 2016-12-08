@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,31 +12,33 @@
     android:orientation="vertical"
     tools:context="com.example.markwen.nfcattendance.MainActivity">
 
-    <TextView
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/continue_as"
-        android:gravity="center"
-        android:textSize="30sp"
-        android:layout_marginTop="50dp"/>
+        android:layout_height="200dp"
+        android:id="@+id/studentCard"
+        app:cardBackgroundColor="@color/colorAccent">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Student"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="70dp"
+            android:textSize="40dp"
+            android:textColor="@color/colorWhiteText"/>
+    </android.support.v7.widget.CardView>
 
-    <RelativeLayout
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:layout_gravity="center">
-        <Button
-            android:id="@+id/studentButton"
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:id="@+id/professorCard"
+        android:layout_marginTop="10dp"
+        app:cardBackgroundColor="#B2DFDB">
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/student"/>
-        <Button
-            android:id="@+id/professorButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/professor"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            tools:ignore="RelativeOverlap" />
-    </RelativeLayout>
+            android:text="Professor"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="70dp"
+            android:textSize="40dp"/>
+    </android.support.v7.widget.CardView>
 </LinearLayout>

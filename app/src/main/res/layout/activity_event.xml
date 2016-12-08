@@ -10,49 +10,45 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.markwen.nfcattendance.NewEventActivity">
 
-    <TextView
-        android:text="Title of Event: "
+    <Button
+        android:text="Create Event"
+        android:gravity="center"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignBaseline="@+id/titleEditText"
-        android:id="@+id/textView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:background="@drawable/button"
+        android:textColor="@color/colorWhiteText"
+        android:id="@+id/buttonCreate"
+        android:layout_below="@+id/buttonTime"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="36dp" />
 
     <Button
         android:text="Pick Start and End Times"
+        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:background="@drawable/button"
+        android:textColor="@color/colorWhiteText"
         android:id="@+id/buttonTime"
+        android:layout_marginTop="40dp"
         android:layout_below="@+id/titleEditText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="71dp"
-         />
-
-    <Button
-        android:text="Create Directory Files"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/buttonTime"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="49dp"
-        android:id="@+id/buttonCreate"
-        android:layout_alignEnd="@+id/buttonTime" />
+        android:layout_centerHorizontal="true" />
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
         android:id="@+id/titleEditText"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/textView"
-        android:layout_toEndOf="@+id/textView"
         android:layout_marginLeft="24dp"
-        android:layout_marginStart="24dp"
-        android:text="Title" />
+        android:gravity="center"
+        android:hint="Title"
+        android:layout_marginTop="54dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

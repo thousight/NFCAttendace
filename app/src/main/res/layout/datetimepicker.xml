@@ -30,18 +30,27 @@
                 android:layout_height="0dp" />
             <Button
                 android:id="@+id/start_time_set"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button"
+                android:textColor="@color/colorWhiteText"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:text="Set Start Time"
                 android:layout_height="0dp" />
             <Button
                 android:id="@+id/end_time_set"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button"
+                android:textColor="@color/colorWhiteText"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:text="Set End Time"
                 android:layout_height="0dp" />
             <Button
                 android:id="@+id/close"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button"
+                android:textColor="@color/colorWhiteText"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:text="CLOSE"

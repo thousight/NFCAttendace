@@ -48,7 +48,7 @@ public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerView
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent displayEventIntent = new Intent(itemView.getContext(), EventViewHolder.class);
+                    Intent displayEventIntent = new Intent(itemView.getContext(), EventDisplayActivity.class);
                     displayEventIntent.putExtra("title", eventName.getText());
                     itemView.getContext().startActivity(displayEventIntent);
                 }
