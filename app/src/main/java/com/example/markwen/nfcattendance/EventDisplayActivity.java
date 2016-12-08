@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,7 +35,7 @@ public class EventDisplayActivity extends AppCompatActivity {
         ListView listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<String>();
         final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File studentFile = new File(strSdPath + "/" + title + ".txt");
+        File studentFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
 
         //read
         String text = "";
