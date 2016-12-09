@@ -29,9 +29,8 @@
                 android:text="12:30pm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/endTimeTextView"
+                android:layout_below="@+id/titleTextView"
                 android:layout_alignStart="@+id/titleTextView"
-                android:layout_marginTop="45dp"
                 android:id="@+id/startTimeTextView"
                 android:textColor="#BDBDBD"
                 android:layout_alignParentEnd="true" />

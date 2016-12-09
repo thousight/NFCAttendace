@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
@@ -25,12 +24,13 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
-public class EventDisplayActivity extends AppCompatActivity implements NfcAdapter.OnNdefPushCompleteCallback {
+public class EventDisplayActivity extends AppCompatActivity {
 
     ArrayList<String> studentList; //arraylist to handle list of students
     ArrayList<String> messagesReceivedArray = new ArrayList<String>(); //arraylist to handle messages received through NFC
     TextView titleText, startTimeText, endTimeText, checkInStatus;
     ListView listViewStudents;
+    String title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +49,7 @@ public class EventDisplayActivity extends AppCompatActivity implements NfcAdapte
         checkInStatus = (TextView) findViewById(R.id.checkInStatusTextView);
 
         // Set title
-        String title = mIntent.getStringExtra("title");
-        titleText.setText(title);
+        title = mIntent.getStringExtra("title");
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<String>();
@@ -83,8 +82,9 @@ public class EventDisplayActivity extends AppCompatActivity implements NfcAdapte
 //            DateFormat formatter = new SimpleDateFormat("MM/DD/yyyy hh:mm"); //use formatter to help format millisecond time to readable time
 //            String starttime = formatter.parse(startDateTime.toString()).toString();
 //            String endtime = formatter.parse(endDateTime.toString()).toString();
+            titleText.setText((String) event.get("title"));
             startTimeText.setText("Start time: " + startDateTime.toString());
-            endTimeText.setText("End time:  " + endDateTime.toString());
+            endTimeText.setText("End time:   " + endDateTime.toString());
             displayStudents(students);
         } catch (Exception e) {
             CharSequence errorMessage = e.getMessage();
@@ -106,11 +106,11 @@ public class EventDisplayActivity extends AppCompatActivity implements NfcAdapte
         listViewStudents.setAdapter(adapter);
     }
 
-    public void handleNfcIntent(NfcEvent nfcEvent) {
+    public void handleNfcIntent(Intent intent) {
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         ArrayAdapter<String> adapter;
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals (nfcEvent.getAction())) {
-            Parcelable[] receivedArray = nfcEvent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals (intent.getAction())) {
+            Parcelable[] receivedArray = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 
             if(receivedArray != null) {
                 messagesReceivedArray = new ArrayList<String>(); //clear string array
@@ -124,16 +124,14 @@ public class EventDisplayActivity extends AppCompatActivity implements NfcAdapte
                     adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, messagesReceivedArray);
                     listViewStudents.setAdapter(adapter);
                 }
+                finish();
             }
         }
     }
-    @Override
-    public void onNewIntent(Intent intent) {
-//        handleNfcIntent(intent);
-    }
 
     @Override
-    public void onNdefPushComplete(NfcEvent nfcEvent) {
-        handleNfcIntent(nfcEvent);
+    public void onResume() {
+        super.onResume();
+        handleNfcIntent(getIntent());
     }
 }
