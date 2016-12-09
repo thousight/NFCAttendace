@@ -6,6 +6,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +30,7 @@ import java.util.Date;
 public class EventDisplayActivity extends AppCompatActivity {
     final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-
+    public static FileObserver observer; //file observer to check for changes to the .txt file
     ArrayList<String> studentList; //arraylist to handle list of students
     ArrayList<String> messagesReceivedArray = new ArrayList<String>(); //arraylist to handle messages received through NFC
     TextView titleText, startTimeText, endTimeText, checkInStatus;
@@ -39,6 +40,7 @@ public class EventDisplayActivity extends AppCompatActivity {
     String start_time;
     String end_time;
     JSONArray students;
+    JSONObject event;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,8 +64,8 @@ public class EventDisplayActivity extends AppCompatActivity {
         studentList = new ArrayList<String>();
 
         //reading file
-        JSONObject event;
-        JSONArray students;
+
+
 
         File studentFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
         BufferedReader br;
@@ -97,7 +99,36 @@ public class EventDisplayActivity extends AppCompatActivity {
             CharSequence errorMessage = e.getMessage();
             Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
         }
-    }
+        observer = new FileObserver(strSdPath + "/NFCAttendance/" + title + ".txt"){
+            @Override
+            public void onEvent(int event_int, String file) {
+
+                BufferedReader br;
+                StringBuilder contentString = new StringBuilder();
+                try {
+                    br = new BufferedReader(new FileReader(txtFile));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        contentString.append(line);
+                    }
+                    br.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    event = new JSONObject(contentString.toString());
+                    students = event.getJSONArray("students");
+                    displayStudents(students);
+                } catch (Exception e) {
+                    CharSequence errorMessage = e.getMessage();
+                    Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
+                }
+            }
+        };
+        observer.startWatching(); // start the file observer
+
+    }//onCreate
     public void displayStudents(JSONArray array) {
         ListView listViewStudents = (ListView) findViewById(R.id.studentListView);
         ArrayList<String> studentList = new ArrayList<String>();
@@ -129,11 +160,11 @@ public class EventDisplayActivity extends AppCompatActivity {
                 int index_check = 0;
                 for (NdefRecord record:records) {
                     index_check++;
-                    if (index_check % 2 != 1){
+                    if (index_check % 2 != 0){
                         student_name = new String(record.getPayload());
                         if (student_name.equals(getPackageName())) { continue; }
                         //read file to get students JSONArray to update
-                        JSONObject event;
+
 
                         BufferedReader br;
                         StringBuilder contentString = new StringBuilder();
@@ -184,8 +215,8 @@ public class EventDisplayActivity extends AppCompatActivity {
                             Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
                         }
                         messagesReceivedArray.add(student_name);
-                        //adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
-                        //listViewStudents.setAdapter(adapter);
+                        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
+                        listViewStudents.setAdapter(adapter);
 
                     }
 
