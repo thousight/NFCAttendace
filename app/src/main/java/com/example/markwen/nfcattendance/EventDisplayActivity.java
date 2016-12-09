@@ -21,13 +21,17 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Date;
 
 
 public class EventDisplayActivity extends AppCompatActivity {
+    final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+
 
     ArrayList<String> studentList; //arraylist to handle list of students
     ArrayList<String> messagesReceivedArray = new ArrayList<String>(); //arraylist to handle messages received through NFC
@@ -35,7 +39,10 @@ public class EventDisplayActivity extends AppCompatActivity {
     ListView listViewStudents;
     String title;
     SharedPreferences sharedPref;
-
+    File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
+    String start_time;
+    String end_time;
+    JSONArray students;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,11 +68,11 @@ public class EventDisplayActivity extends AppCompatActivity {
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<String>();
-        final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         //reading file
         JSONObject event;
         JSONArray students;
+
         File studentFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
         BufferedReader br;
         StringBuilder contentString = new StringBuilder();
@@ -126,22 +133,83 @@ public class EventDisplayActivity extends AppCompatActivity {
                 messagesReceivedArray = new ArrayList<String>(); //clear string array
                 NdefMessage receivedMessage = (NdefMessage) receivedArray[0];
                 NdefRecord[] records = receivedMessage.getRecords();
+                String student_name;
+                //String device_id;
 
+                int index_check = 0;
                 for (NdefRecord record:records) {
-                    String tempString = new String(record.getPayload());
-                    if (tempString.equals(getPackageName())) { continue; }
-                    messagesReceivedArray.add(tempString);
-                    adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, messagesReceivedArray);
-                    listViewStudents.setAdapter(adapter);
+                    index_check++;
+                    if (index_check % 2 != 1){
+                        student_name = new String(record.getPayload());
+                        if (student_name.equals(getPackageName())) { continue; }
+                        //read file to get students JSONArray to update
+                        JSONObject event;
+
+                        BufferedReader br;
+                        StringBuilder contentString = new StringBuilder();
+                        try {
+                            br = new BufferedReader(new FileReader(txtFile));
+                            String line;
+                            while ((line = br.readLine()) != null) {
+                                contentString.append(line);
+                            }
+                            br.close();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            event = new JSONObject(contentString.toString());
+                            students = event.getJSONArray("students");
+                            start_time = event.get("start_time").toString();
+                            end_time = event.get("end_time").toString();
+                            title = event.get("title").toString();
+
+                            students.put(student_name); //populate students JSONArray with student name received
+                        } catch (Exception e) {
+                        CharSequence errorMessage = e.getMessage();
+                        Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
+                        }
+                        //write the updated students array back into the file
+                        try {
+                            txtFile.delete();
+                            File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt"); //make new file
+                            FileOutputStream output = new FileOutputStream(txtFile, false);
+                            OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
+                            try {
+                                JSONObject obj1 = new JSONObject();
+                                obj1.put("students", students);
+                                obj1.put("end_time", end_time);
+                                obj1.put("start_time", start_time);
+                                obj1.put("title", title);
+
+                                String str = obj1.toString();
+                                myOutWriter.append(str);
+                                myOutWriter.close();
+                            } catch (Exception e) {
+                                Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+
+                        } catch (Exception e) {
+                            Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                        }
+                        messagesReceivedArray.add(student_name);
+                        //adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
+                        //listViewStudents.setAdapter(adapter);
+
+                    }
+
                 }
                 finish();
             }
         }
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
+
         handleNfcIntent(getIntent());
     }
 }
