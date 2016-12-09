@@ -8,6 +8,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -34,7 +35,7 @@ import java.util.List;
 public class EventDisplayActivity extends AppCompatActivity {
     final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-
+    public static FileObserver observer; //file observer to check for changes to the .txt file
     ArrayList<String> studentList; //arraylist to handle list of students
     ArrayList<String> messagesReceivedArray = new ArrayList<String>(); //arraylist to handle messages received through NFC
     TextView titleText, startTimeText, endTimeText, checkInStatus;
@@ -45,6 +46,7 @@ public class EventDisplayActivity extends AppCompatActivity {
     Long start_time;
     Long end_time;
     String students;
+    JSONObject event;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,11 +71,9 @@ public class EventDisplayActivity extends AppCompatActivity {
         editor.apply();
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);
-        studentList = new ArrayList<String>();
+        studentList = new ArrayList<>();
 
         //reading file
-        JSONObject event;
-
         File studentFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
         BufferedReader br;
         StringBuilder contentString = new StringBuilder();
@@ -95,9 +95,6 @@ public class EventDisplayActivity extends AppCompatActivity {
             students = event.get("students").toString();
             Date startDateTime = new Date((Long) event.get("start_time"));
             Date endDateTime = new Date((Long) event.get("end_time"));
-//            DateFormat formatter = new SimpleDateFormat("MM/DD/yyyy hh:mm"); //use formatter to help format millisecond time to readable time
-//            String starttime = formatter.parse(startDateTime.toString()).toString();
-//            String endtime = formatter.parse(endDateTime.toString()).toString();
             titleText.setText((String) event.get("title"));
             startTimeText.setText("Start time: " + startDateTime.toString());
             endTimeText.setText("End time:   " + endDateTime.toString());
@@ -106,17 +103,25 @@ public class EventDisplayActivity extends AppCompatActivity {
             CharSequence errorMessage = e.getMessage();
             Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
         }
+
     }
     public void displayStudents(String list) {
-        List<String> array = new ArrayList<>(Arrays.asList(list.split(",")));
+        // Trying to fix the problem when there is always an extra value up top
+        List<String> array;
+        if (list.equals("")){
+            array = new ArrayList<>();
+        } else {
+            array = new ArrayList<>(Arrays.asList(list.split(",")));
+        }
         ListView listViewStudents = (ListView) findViewById(R.id.studentListView);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, array);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, array);
         listViewStudents.setAdapter(adapter);
     }
 
     public void handleNfcIntent(Intent intent) {
         SharedPreferences sharedPref = getSharedPreferences("NFCAttendance", Context.MODE_PRIVATE);
-        String title = sharedPref.getString("selectedEvent", "Testing");
+//        String title = sharedPref.getString("selectedEvent", null);
+
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         ArrayAdapter<String> adapter;
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals (intent.getAction())) {
@@ -136,7 +141,7 @@ public class EventDisplayActivity extends AppCompatActivity {
                         student_name = new String(record.getPayload());
                         if (student_name.equals(getPackageName())) { continue; }
                         //read file to get students JSONArray to update
-                        JSONObject event;
+
 
                         BufferedReader br;
                         StringBuilder contentString = new StringBuilder();
@@ -158,7 +163,11 @@ public class EventDisplayActivity extends AppCompatActivity {
                             end_time = (Long) event.get("end_time");
                             title = event.get("title").toString();
                             // Add student into StringArray students
-                            students += ("," + student_name);
+                            if (students.equals("")){
+                                students += student_name;
+                            } else {
+                                students += ("," + student_name);
+                            }
                         } catch (Exception e) {
                         CharSequence errorMessage = e.getMessage();
                         Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
@@ -187,13 +196,14 @@ public class EventDisplayActivity extends AppCompatActivity {
                             Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
                         }
                         messagesReceivedArray.add(student_name);
-                        //adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
-                        //listViewStudents.setAdapter(adapter);
-
+                        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
+                        listViewStudents.setAdapter(adapter);
+                        Intent restart = new Intent(this, EventDisplayActivity.class);
+                        restart.putExtra("title", title);
+                        startActivity(restart);
+                        finish();
                     }
-
                 }
-                finish();
             }
         }
     }
