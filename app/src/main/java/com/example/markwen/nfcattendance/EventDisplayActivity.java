@@ -1,6 +1,9 @@
 package com.example.markwen.nfcattendance;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -31,6 +34,7 @@ public class EventDisplayActivity extends AppCompatActivity {
     TextView titleText, startTimeText, endTimeText, checkInStatus;
     ListView listViewStudents;
     String title;
+    SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +52,12 @@ public class EventDisplayActivity extends AppCompatActivity {
         endTimeText = (TextView) findViewById(R.id.endTimeTextView);
         checkInStatus = (TextView) findViewById(R.id.checkInStatusTextView);
 
-        // Set title
+        // Set title in SharedPreferences
         title = mIntent.getStringExtra("title");
+        sharedPref = getSharedPreferences("NFCAttendance", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("selectedEvent", title);
+        editor.apply();
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<String>();
@@ -107,6 +115,8 @@ public class EventDisplayActivity extends AppCompatActivity {
     }
 
     public void handleNfcIntent(Intent intent) {
+        SharedPreferences sharedPref = getSharedPreferences("NFCAttendance", Context.MODE_PRIVATE);
+        String title = sharedPref.getString("selectedEvent", null);
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         ArrayAdapter<String> adapter;
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals (intent.getAction())) {
