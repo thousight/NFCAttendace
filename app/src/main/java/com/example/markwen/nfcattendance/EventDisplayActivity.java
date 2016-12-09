@@ -1,6 +1,5 @@
 package com.example.markwen.nfcattendance;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -26,7 +26,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 
 public class EventDisplayActivity extends AppCompatActivity {
@@ -40,9 +42,9 @@ public class EventDisplayActivity extends AppCompatActivity {
     String title;
     SharedPreferences sharedPref;
     File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
-    String start_time;
-    String end_time;
-    JSONArray students;
+    Long start_time;
+    Long end_time;
+    String students;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +73,6 @@ public class EventDisplayActivity extends AppCompatActivity {
 
         //reading file
         JSONObject event;
-        JSONArray students;
 
         File studentFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
         BufferedReader br;
@@ -91,7 +92,7 @@ public class EventDisplayActivity extends AppCompatActivity {
 
         try {
             event = new JSONObject(contentString.toString());
-            students = event.getJSONArray("students");
+            students = event.get("students").toString();
             Date startDateTime = new Date((Long) event.get("start_time"));
             Date endDateTime = new Date((Long) event.get("end_time"));
 //            DateFormat formatter = new SimpleDateFormat("MM/DD/yyyy hh:mm"); //use formatter to help format millisecond time to readable time
@@ -106,24 +107,16 @@ public class EventDisplayActivity extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
         }
     }
-    public void displayStudents(JSONArray array) {
+    public void displayStudents(String list) {
+        List<String> array = new ArrayList<>(Arrays.asList(list.split(",")));
         ListView listViewStudents = (ListView) findViewById(R.id.studentListView);
-        ArrayList<String> studentList = new ArrayList<String>();
-        for (int i = 0; i < array.length(); i++){
-            try {
-                studentList.add(array.getJSONObject(i).getString("name"));
-            } catch (Exception e) {
-                CharSequence errorMessage = e.getMessage();
-                Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
-            }
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, studentList);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, array);
         listViewStudents.setAdapter(adapter);
     }
 
     public void handleNfcIntent(Intent intent) {
         SharedPreferences sharedPref = getSharedPreferences("NFCAttendance", Context.MODE_PRIVATE);
-        String title = sharedPref.getString("selectedEvent", null);
+        String title = sharedPref.getString("selectedEvent", "Testing");
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         ArrayAdapter<String> adapter;
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals (intent.getAction())) {
@@ -139,7 +132,7 @@ public class EventDisplayActivity extends AppCompatActivity {
                 int index_check = 0;
                 for (NdefRecord record:records) {
                     index_check++;
-                    if (index_check % 2 != 1){
+                    if (index_check % 2 != 0){
                         student_name = new String(record.getPayload());
                         if (student_name.equals(getPackageName())) { continue; }
                         //read file to get students JSONArray to update
@@ -148,7 +141,7 @@ public class EventDisplayActivity extends AppCompatActivity {
                         BufferedReader br;
                         StringBuilder contentString = new StringBuilder();
                         try {
-                            br = new BufferedReader(new FileReader(txtFile));
+                            br = new BufferedReader(new FileReader(strSdPath + "/NFCAttendance/" + title + ".txt"));
                             String line;
                             while ((line = br.readLine()) != null) {
                                 contentString.append(line);
@@ -160,12 +153,12 @@ public class EventDisplayActivity extends AppCompatActivity {
                         }
                         try {
                             event = new JSONObject(contentString.toString());
-                            students = event.getJSONArray("students");
-                            start_time = event.get("start_time").toString();
-                            end_time = event.get("end_time").toString();
+                            students = event.get("students").toString();
+                            start_time = (Long) event.get("start_time");
+                            end_time = (Long) event.get("end_time");
                             title = event.get("title").toString();
-
-                            students.put(student_name); //populate students JSONArray with student name received
+                            // Add student into StringArray students
+                            students += ("," + student_name);
                         } catch (Exception e) {
                         CharSequence errorMessage = e.getMessage();
                         Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
@@ -211,5 +204,25 @@ public class EventDisplayActivity extends AppCompatActivity {
         super.onResume();
 
         handleNfcIntent(getIntent());
+    }
+
+    public ArrayList<String> JSONArrayToStringArrayList(JSONArray jsonArray){
+        ArrayList<String> listdata = new ArrayList<String>();
+        if (jsonArray != null) {
+            for (int i=0;i<jsonArray.length();i++){
+                try {
+                    listdata.add(jsonArray.getString(i));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return listdata;
+    }
+
+    public String[] addToStringArray(String[] array, String value) {
+        String[] newArray = new String[array.length + 1];
+        newArray[array.length] = value;
+        return newArray;
     }
 }

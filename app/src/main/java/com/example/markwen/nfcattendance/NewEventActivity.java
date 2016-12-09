@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -102,7 +101,7 @@ public class NewEventActivity extends AppCompatActivity {
                         File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
                         FileOutputStream output = new FileOutputStream(txtFile);
                         OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
-                        JSONArray students = new JSONArray();
+                        String students = "";
                         try {
                             JSONObject obj1 = new JSONObject();
                             obj1.put("students", students);
