@@ -18,8 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -109,9 +107,9 @@ public class EventDisplayActivity extends AppCompatActivity {
             titleText.setText((String) event.get("title"));
             startTimeText.setText("Start time: " + startDateTime.toString());
             endTimeText.setText("End time:   " + endDateTime.toString());
-            Long localTime = System.currentTimeMillis();
-            if (!(start_time < localTime && end_time > localTime)) {
-                checkInStatus.setText("You are not allowed to check students in now, please check back during event hours.");
+            Date localTime = new Date(System.currentTimeMillis());
+            if (!(startDateTime.compareTo(localTime) > 0 && endDateTime.compareTo(localTime) < 0)) {
+                checkInStatus.setText("You can only checkin during event hours.");
             }
             displayStudents(students);
         } catch (Exception e) {
@@ -231,27 +229,7 @@ public class EventDisplayActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
         handleNfcIntent(getIntent());
     }
 
-    public ArrayList<String> JSONArrayToStringArrayList(JSONArray jsonArray){
-        ArrayList<String> listdata = new ArrayList<String>();
-        if (jsonArray != null) {
-            for (int i=0;i<jsonArray.length();i++){
-                try {
-                    listdata.add(jsonArray.getString(i));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return listdata;
-    }
-
-    public String[] addToStringArray(String[] array, String value) {
-        String[] newArray = new String[array.length + 1];
-        newArray[array.length] = value;
-        return newArray;
-    }
 }
