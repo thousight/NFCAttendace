@@ -10,8 +10,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Parcelable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -47,6 +49,7 @@ public class EventDisplayActivity extends AppCompatActivity {
     Long end_time;
     String students;
     JSONObject event;
+    FloatingActionButton backButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +65,14 @@ public class EventDisplayActivity extends AppCompatActivity {
         startTimeText = (TextView) findViewById(R.id.startTimeTextView);
         endTimeText = (TextView) findViewById(R.id.endTimeTextView);
         checkInStatus = (TextView) findViewById(R.id.checkInStatusTextView);
+        backButton = (FloatingActionButton) findViewById(R.id.backFAB);
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), ProfessorActivity.class));
+            }
+        });
 
         // Set title in SharedPreferences
         title = mIntent.getStringExtra("title");
@@ -98,6 +109,10 @@ public class EventDisplayActivity extends AppCompatActivity {
             titleText.setText((String) event.get("title"));
             startTimeText.setText("Start time: " + startDateTime.toString());
             endTimeText.setText("End time:   " + endDateTime.toString());
+            Long localTime = System.currentTimeMillis();
+            if (!(start_time < localTime && end_time > localTime)) {
+                checkInStatus.setText("You are not allowed to check students in now, please check back during event hours.");
+            }
             displayStudents(students);
         } catch (Exception e) {
             CharSequence errorMessage = e.getMessage();
@@ -121,6 +136,7 @@ public class EventDisplayActivity extends AppCompatActivity {
     public void handleNfcIntent(Intent intent) {
         SharedPreferences sharedPref = getSharedPreferences("NFCAttendance", Context.MODE_PRIVATE);
 //        String title = sharedPref.getString("selectedEvent", null);
+        Long localTime = System.currentTimeMillis();
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         ArrayAdapter<String> adapter;
@@ -167,6 +183,9 @@ public class EventDisplayActivity extends AppCompatActivity {
                                 students += student_name;
                             } else {
                                 students += ("," + student_name);
+                            }
+                            if (!(start_time < localTime && end_time > localTime)) {
+                                finish();
                             }
                         } catch (Exception e) {
                         CharSequence errorMessage = e.getMessage();

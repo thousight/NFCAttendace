@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -55,15 +55,17 @@
                 android:layout_marginBottom="27dp"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true" />
+
         </RelativeLayout>
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="330dp"
+            android:layout_height="265dp"
             android:layout_below="@id/textWrapper"
             android:layout_marginTop="15dp"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp">
+            android:layout_marginRight="10dp"
+            android:id="@+id/listCard">
             <ListView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -74,5 +76,18 @@
                 android:paddingRight="16dp"
                 android:id="@+id/studentListView" />
         </android.support.v7.widget.CardView>
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            app:fabSize="normal"
+            app:srcCompat="@drawable/ic_arrow_back"
+            android:id="@+id/backFAB"
+            android:layout_marginTop="15dp"
+            android:layout_below="@+id/listCard"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            />
     </RelativeLayout>
 </ScrollView>
