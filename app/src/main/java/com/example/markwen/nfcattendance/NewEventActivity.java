@@ -1,11 +1,11 @@
 package com.example.markwen.nfcattendance;
 
 import android.content.Intent;
-import android.icu.util.Output;
+import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -16,7 +16,6 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -30,6 +29,7 @@ public class NewEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
+        setTitle("Add New Event");
         Button createButton = (Button) findViewById(R.id.buttonCreate);
         Button pickButton = (Button) findViewById(R.id.buttonTime);
         final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath(); //find external storage path
@@ -53,7 +53,7 @@ public class NewEventActivity extends AppCompatActivity {
                         timePicker.getCurrentMinute());
 
                 start_time = calendar.getTimeInMillis();
-                Toast.makeText(getBaseContext(), "Start time saved", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Start time saved", Toast.LENGTH_LONG).show();
             }
         });
         dialogView.findViewById(R.id.end_time_set).setOnClickListener(new View.OnClickListener() {
@@ -70,8 +70,7 @@ public class NewEventActivity extends AppCompatActivity {
                         timePicker.getCurrentMinute());
 
                 end_time = calendar.getTimeInMillis();
-                Toast.makeText(getBaseContext(), "End time saved", Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(getApplicationContext(), "End time saved", Toast.LENGTH_LONG).show();
             }
         });
         dialogView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
@@ -88,18 +87,21 @@ public class NewEventActivity extends AppCompatActivity {
                 String title = "";
                 title = titleET.getText().toString();
                 if (title.equals("")) {
-                    Toast.makeText(getBaseContext(), "Please enter a title", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(R.id.activity_event), "Please enter a title", Snackbar.LENGTH_LONG).show();
                 } else if (start_time == 0L) {
-                    Toast.makeText(getBaseContext(), "Please choose a start time first", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(R.id.activity_event), "Please choose a start time first", Snackbar.LENGTH_LONG).show();
                 } else if (end_time == 0L) {
-                    Toast.makeText(getBaseContext(), "Please choose an end time first", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(R.id.activity_event), "Please choose an end time first", Snackbar.LENGTH_LONG).show();
                 } else {
                     final File directory = new File(strSdPath + "/NFCAttendance/");
-                    directory.mkdir();
-                    Toast.makeText(getBaseContext(), title + " directory created at " + strSdPath + "/NFCAttendance", Toast.LENGTH_SHORT).show();
+                    if (!directory.exists()){
+                        directory.mkdir();
+                    }
+                    Snackbar.make(findViewById(R.id.activity_event), title + " directory created at " + strSdPath + "/NFCAttendance", Snackbar.LENGTH_LONG).show();
                     try {
                         File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
-                        OutputStreamWriter myOutWriter = new OutputStreamWriter(new FileOutputStream(txtFile));
+                        FileOutputStream output = new FileOutputStream(txtFile);
+                        OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
                         JSONArray students = new JSONArray();
                         try {
                             JSONObject obj1 = new JSONObject();
@@ -111,14 +113,14 @@ public class NewEventActivity extends AppCompatActivity {
                             String str = obj1.toString();
                             myOutWriter.append(str);
                             myOutWriter.close();
-                            Toast.makeText(getBaseContext(), "Data file written", Toast.LENGTH_SHORT).show();
+                            Snackbar.make(findViewById(R.id.activity_event), "Data file written", Snackbar.LENGTH_LONG).show();
                             moveToP(v);
                         } catch (Exception e) {
-                            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
                         }
 
                     } catch (Exception e) {
-                        Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
                     }
                 }
             }

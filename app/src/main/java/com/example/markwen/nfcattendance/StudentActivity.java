@@ -8,11 +8,11 @@ import android.nfc.NfcEvent;
 import android.nfc.NfcManager;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnNdefPushCompleteCallback,
         NfcAdapter.CreateNdefMessageCallback {
@@ -55,12 +55,10 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
 
             //This will be called if the message is sent successfully
             nfcAdapter.setOnNdefPushCompleteCallback(this, this);
-            Toast.makeText(this, "NFC available on this device, go ahead and tap on your professor's device.",
-                    Toast.LENGTH_LONG).show();
+            Snackbar.make(findViewById(R.id.studentNameEditText), "NFC available on this device, go ahead and tap on your professor's device.", Snackbar.LENGTH_LONG).show();
         }
         else {
-            Toast.makeText(this, "NFC not available on this device, join the iPhone users.",
-                    Toast.LENGTH_LONG).show();
+            Snackbar.make(findViewById(R.id.studentNameEditText), "NFC not available on this device.", Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -77,12 +75,15 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
     }
 
     private NdefRecord[] createRecords() {
+        // Adding information into the message to be sent
         NdefRecord[] records = new NdefRecord[2];
+        // Student name
         records[0] = new NdefRecord(
                 NdefRecord.TNF_WELL_KNOWN,
                 NdefRecord.RTD_TEXT,
                 new byte[0],
                 studentName.getBytes());
+        // Device ID
         records[1] = new NdefRecord(
                 NdefRecord.TNF_WELL_KNOWN,
                 NdefRecord.RTD_TEXT,
