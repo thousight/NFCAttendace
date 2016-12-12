@@ -17,14 +17,17 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +45,6 @@ public class EventDisplayActivity extends AppCompatActivity {
     ListView listViewStudents;
     String title;
     SharedPreferences sharedPref;
-    File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
     Long start_time;
     Long end_time;
     String students;
@@ -65,6 +67,26 @@ public class EventDisplayActivity extends AppCompatActivity {
         checkInStatus = (TextView) findViewById(R.id.checkInStatusTextView);
         backButton = (FloatingActionButton) findViewById(R.id.backFAB);
 
+        //read title from title_holder file
+        File titleFile = new File(strSdPath + "/NFCAttendance/" + "title_holder15234.txt");
+        BufferedReader br;
+        String aDataRow = "";
+        String aBuffer = "";
+        try {
+            br = new BufferedReader(new FileReader(titleFile));
+
+            while ((aDataRow = br.readLine()) != null) {
+                title += aDataRow + "\n";
+            }
+            br.close();
+
+        }
+        catch (IOException e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+
+
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,7 +106,6 @@ public class EventDisplayActivity extends AppCompatActivity {
 
         //reading file
         File studentFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
-        BufferedReader br;
         StringBuilder contentString = new StringBuilder();
         try {
             br = new BufferedReader(new FileReader(studentFile));
@@ -97,7 +118,6 @@ public class EventDisplayActivity extends AppCompatActivity {
         catch (IOException e) {
             e.printStackTrace();
         }
-
 
         try {
             event = new JSONObject(contentString.toString());
@@ -160,6 +180,7 @@ public class EventDisplayActivity extends AppCompatActivity {
                         BufferedReader br;
                         StringBuilder contentString = new StringBuilder();
                         try {
+
                             br = new BufferedReader(new FileReader(strSdPath + "/NFCAttendance/" + title + ".txt"));
                             String line;
                             while ((line = br.readLine()) != null) {
@@ -191,8 +212,9 @@ public class EventDisplayActivity extends AppCompatActivity {
                         }
                         //write the updated students array back into the file
                         try {
+                            File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
                             txtFile.delete();
-                            File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt"); //make new file
+                            txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt"); //make new file
                             FileOutputStream output = new FileOutputStream(txtFile, false);
                             OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
                             try {
