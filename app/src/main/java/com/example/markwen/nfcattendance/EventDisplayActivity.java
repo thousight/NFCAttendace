@@ -126,7 +126,9 @@ public class EventDisplayActivity extends AppCompatActivity {
             startTimeText.setText("Start time: " + startDateTime.toString());
             endTimeText.setText("End time:   " + endDateTime.toString());
             Date localTime = new Date(System.currentTimeMillis());
-            if (!(startDateTime.compareTo(localTime) > 0 && endDateTime.compareTo(localTime) < 0)) {
+            Boolean start = startDateTime.compareTo(localTime) < 0;
+            Boolean end = endDateTime.compareTo(localTime) > 0;
+            if (!(startDateTime.compareTo(localTime) < 0 && endDateTime.compareTo(localTime) > 0)) {
                 checkInStatus.setText("You can only checkin during event hours.");
             }
             displayStudents(students);
@@ -151,7 +153,7 @@ public class EventDisplayActivity extends AppCompatActivity {
 
     public void handleNfcIntent(Intent intent) {
         SharedPreferences sharedPref = getSharedPreferences("NFCAttendance", Context.MODE_PRIVATE);
-//        String title = sharedPref.getString("selectedEvent", null);
+//        String title = sharedPref.getString("selectedEvent", "testing");
         Long localTime = System.currentTimeMillis();
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);

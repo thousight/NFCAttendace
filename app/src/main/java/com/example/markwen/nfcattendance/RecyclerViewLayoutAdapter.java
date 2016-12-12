@@ -20,8 +20,6 @@ import java.util.List;
 
 public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerViewLayoutAdapter.EventViewHolder> {
     final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-
     private List<String> eventNameList;
 
     RecyclerViewLayoutAdapter(List<String> eventNameList) {
@@ -77,6 +75,20 @@ public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerView
                         //Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
                     }
 
+                }
+            });
+            // Long press card to delete the file
+            cardView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    String filename = eventName.getText().toString();
+                    File file = new File(strSdPath + "/NFCAttendance/" + filename + ".txt"); // get file
+                    file.delete(); // delete file
+                    // update view
+                    int position = eventNameList.indexOf(filename);
+                    eventNameList.remove(filename);
+                    notifyItemChanged(position);
+                    return true;
                 }
             });
         }
