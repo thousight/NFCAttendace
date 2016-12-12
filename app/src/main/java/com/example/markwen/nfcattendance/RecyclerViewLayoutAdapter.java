@@ -2,16 +2,12 @@ package com.example.markwen.nfcattendance;
 
 import android.content.Intent;
 import android.os.Environment;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,7 +60,7 @@ public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerView
                     //write new file to hold title name
                     itemView.getContext().startActivity(displayEventIntent);
                     try {
-                        File txtFile = new File(strSdPath + "/NFCAttendance/" + "title_holder15234.txt"); //make new file
+                        File txtFile = new File(strSdPath + "/NFCAttendance/" + "title_holder.txt"); //make new file
                         FileOutputStream output = new FileOutputStream(txtFile, false);
                         OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
                         try {

@@ -36,7 +36,9 @@ public class ProfessorActivity extends AppCompatActivity {
         eventsNameList = new ArrayList<>();
         if (fileList != null){
             for (String aFileList : fileList) {
-                eventsNameList.add(aFileList.substring(0, aFileList.indexOf(".")));
+                if(!aFileList.equals("title_holder.txt")){
+                    eventsNameList.add(aFileList.substring(0, aFileList.indexOf(".")));
+                }
             }
         }
 

@@ -24,7 +24,8 @@
                 android:id="@+id/titleTextView"
                 android:textSize="50sp"
                 android:textColor="@color/colorWhiteText"
-                android:layout_alignParentEnd="true" />
+                android:layout_alignParentEnd="true"
+                android:maxLines="1"/>
             <TextView
                 android:text="12:30pm"
                 android:layout_width="wrap_content"
