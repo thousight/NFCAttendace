@@ -44,7 +44,7 @@ public class EventDisplayActivity extends AppCompatActivity {
     String title;
     Long start_time;
     Long end_time;
-    String students;
+    String students, devices;
     JSONObject event;
     FloatingActionButton backButton;
     @Override
@@ -154,8 +154,6 @@ public class EventDisplayActivity extends AppCompatActivity {
 
             // Only perform actions when there are items in the array
             if(receivedArray != null) {
-
-
                 //Make sure you close all streams.
                 BufferedReader br;
                 StringBuilder contentString = new StringBuilder();
@@ -175,83 +173,89 @@ public class EventDisplayActivity extends AppCompatActivity {
                 messagesReceivedArray = new ArrayList<>(); //clear string array
                 NdefMessage receivedMessage = (NdefMessage) receivedArray[0];
                 NdefRecord[] records = receivedMessage.getRecords();
-                String student_name;
-                String device_id;
-
+                String student_name = "";
+                String device_id = "";
                 int index_check = 0;
                 for (NdefRecord record:records) {
                     index_check++;
-                    if (index_check % 2 != 0){
-                        student_name = new String(record.getPayload());
-                        if (student_name.equals(getPackageName())) { continue; }
-                        //read file to get students JSONArray to update
-//                        BufferedReader br;
-//                        StringBuilder contentString = new StringBuilder();
-                        try {
-
-                            br = new BufferedReader(new FileReader(strSdPath + "/NFCAttendance/" + title + ".txt"));
-                            String line;
-                            while ((line = br.readLine()) != null) {
-                                contentString.append(line);
-                            }
-                            br.close();
-                        }
-                        catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            // Read JSON file
-                            event = new JSONObject(contentString.toString());
-                            students = event.get("students").toString();
-                            start_time = (Long) event.get("start_time");
-                            end_time = (Long) event.get("end_time");
-                            title = event.get("title").toString();
-                            // Add student into StringArray students
-                            if (students.equals("")){
-                                students += student_name;
-                            } else {
-                                students += ("," + student_name);
-                            }
-                            if (!(start_time < localTime && end_time > localTime)) {
-                                finish();
-                            }
-                        } catch (Exception e) {
-                        CharSequence errorMessage = e.getMessage();
-                        Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
-                        }
-                        //write the updated students array back into the file
-                        try {
-                            File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
-                            txtFile.delete();
-                            txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt"); //make new file
-                            FileOutputStream output = new FileOutputStream(txtFile, false);
-                            OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
-                            try {
-                                JSONObject obj1 = new JSONObject();
-                                obj1.put("students", students);
-                                obj1.put("end_time", end_time);
-                                obj1.put("start_time", start_time);
-                                obj1.put("title", title);
-
-                                String str = obj1.toString();
-                                myOutWriter.append(str);
-                                myOutWriter.close();
-                            } catch (Exception e) {
-                                Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                            }
-
-                        } catch (Exception e) {
-                            Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                        }
-                        messagesReceivedArray.add(student_name);
-                        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
-                        listViewStudents.setAdapter(adapter);
-                        Intent restart = new Intent(this, EventDisplayActivity.class);
-                        restart.putExtra("title", title);
-                        startActivity(restart);
-                        finish();
+                    if (index_check % 2 == 0){ // Setting deviceID
+                        device_id = new String(record.getPayload());
                     }
+                    if (index_check % 2 == 1) { // Setting student name
+                        student_name = new String(record.getPayload());
+                    }
+                    if (student_name.equals(getPackageName())) { continue; }
                 }
+
+                //read file to get students JSONArray to update
+                try {
+                    br = new BufferedReader(new FileReader(strSdPath + "/NFCAttendance/" + title + ".txt"));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        contentString.append(line);
+                    }
+                    br.close();
+
+                    // Read JSON file
+                    event = new JSONObject(contentString.toString());
+                    students = event.get("students").toString();
+                    devices = event.get("devices").toString();
+                    start_time = (Long) event.get("start_time");
+                    end_time = (Long) event.get("end_time");
+                    title = event.get("title").toString();
+
+                    if (!(start_time < localTime && end_time > localTime)) {
+                        // stop if local time is not in event time range
+                        Toast.makeText(this, "Not time to check in yet", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else if (devices.contains(device_id)) {
+                        // if devices already existed in the list
+                        Toast.makeText(this, "This device is already used to check in", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        // Add student into StringArray students
+                        if (students.equals("")){
+                            students += student_name;
+                        } else {
+                            students += ("," + student_name);
+                        }
+                        // Add device into StringArray students
+                        if (devices.equals("")){
+                            devices += device_id;
+                        } else {
+                            devices += ("," + device_id);
+                        }
+                    }
+
+                    //write the updated students array back into the file
+                    File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
+                    txtFile.delete();
+                    txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt"); //make new file
+                    FileOutputStream output = new FileOutputStream(txtFile, false);
+                    OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
+
+                    JSONObject obj1 = new JSONObject();
+                    obj1.put("students", students);
+                    obj1.put("devices", devices);
+                    obj1.put("end_time", end_time);
+                    obj1.put("start_time", start_time);
+                    obj1.put("title", title);
+
+                    String str = obj1.toString();
+                    myOutWriter.append(str);
+                    myOutWriter.close();
+
+                } catch (Exception e) {
+                    Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                }
+
+                messagesReceivedArray.add(student_name);
+                adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
+                listViewStudents.setAdapter(adapter);
+                Intent restart = new Intent(this, EventDisplayActivity.class);
+                restart.putExtra("title", title);
+                startActivity(restart);
+                finish();
             }
         }
     }

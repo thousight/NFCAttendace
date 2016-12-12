@@ -101,10 +101,10 @@ public class NewEventActivity extends AppCompatActivity {
                         File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
                         FileOutputStream output = new FileOutputStream(txtFile);
                         OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
-                        String students = "";
                         try {
                             JSONObject obj1 = new JSONObject();
-                            obj1.put("students", students);
+                            obj1.put("students", "");
+                            obj1.put("devices", "");
                             obj1.put("end_time", end_time);
                             obj1.put("start_time", start_time);
                             obj1.put("title", title);
