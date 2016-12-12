@@ -1,8 +1,6 @@
 package com.example.markwen.nfcattendance;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -26,6 +24,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +42,6 @@ public class EventDisplayActivity extends AppCompatActivity {
     TextView titleText, startTimeText, endTimeText, checkInStatus;
     ListView listViewStudents;
     String title;
-    SharedPreferences sharedPref;
     Long start_time;
     Long end_time;
     String students;
@@ -92,12 +91,8 @@ public class EventDisplayActivity extends AppCompatActivity {
             }
         });
 
-        // Set title in SharedPreferences
+        // Set title
         title = mIntent.getStringExtra("title");
-        sharedPref = getSharedPreferences("NFCAttendance", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("selectedEvent", title);
-        editor.apply();
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<>();
@@ -126,10 +121,8 @@ public class EventDisplayActivity extends AppCompatActivity {
             startTimeText.setText("Start time: " + startDateTime.toString());
             endTimeText.setText("End time:   " + endDateTime.toString());
             Date localTime = new Date(System.currentTimeMillis());
-            Boolean start = startDateTime.compareTo(localTime) < 0;
-            Boolean end = endDateTime.compareTo(localTime) > 0;
             if (!(startDateTime.compareTo(localTime) < 0 && endDateTime.compareTo(localTime) > 0)) {
-                checkInStatus.setText("You can only checkin during event hours.");
+                checkInStatus.setText("You cannot check in now.");
             }
             displayStudents(students);
         } catch (Exception e) {
@@ -152,8 +145,6 @@ public class EventDisplayActivity extends AppCompatActivity {
     }
 
     public void handleNfcIntent(Intent intent) {
-        SharedPreferences sharedPref = getSharedPreferences("NFCAttendance", Context.MODE_PRIVATE);
-//        String title = sharedPref.getString("selectedEvent", "testing");
         Long localTime = System.currentTimeMillis();
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);
@@ -161,12 +152,31 @@ public class EventDisplayActivity extends AppCompatActivity {
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals (intent.getAction())) {
             Parcelable[] receivedArray = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 
+            // Only perform actions when there are items in the array
             if(receivedArray != null) {
-                messagesReceivedArray = new ArrayList<String>(); //clear string array
+
+
+                //Make sure you close all streams.
+                BufferedReader br;
+                StringBuilder contentString = new StringBuilder();
+                try {
+                    br = new BufferedReader(new FileReader(strSdPath + "/NFCAttendance/title_hoder.txt"));
+                    String line = br.readLine();
+                    while ((line = br.readLine()) != null) {
+                        contentString.append(line);
+                    }
+                    br.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String title = contentString.toString();
+
+                messagesReceivedArray = new ArrayList<>(); //clear string array
                 NdefMessage receivedMessage = (NdefMessage) receivedArray[0];
                 NdefRecord[] records = receivedMessage.getRecords();
                 String student_name;
-                //String device_id;
+                String device_id;
 
                 int index_check = 0;
                 for (NdefRecord record:records) {
@@ -175,10 +185,8 @@ public class EventDisplayActivity extends AppCompatActivity {
                         student_name = new String(record.getPayload());
                         if (student_name.equals(getPackageName())) { continue; }
                         //read file to get students JSONArray to update
-
-
-                        BufferedReader br;
-                        StringBuilder contentString = new StringBuilder();
+//                        BufferedReader br;
+//                        StringBuilder contentString = new StringBuilder();
                         try {
 
                             br = new BufferedReader(new FileReader(strSdPath + "/NFCAttendance/" + title + ".txt"));
@@ -192,6 +200,7 @@ public class EventDisplayActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                         try {
+                            // Read JSON file
                             event = new JSONObject(contentString.toString());
                             students = event.get("students").toString();
                             start_time = (Long) event.get("start_time");
@@ -252,6 +261,17 @@ public class EventDisplayActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         handleNfcIntent(getIntent());
+    }
+
+    public static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
     }
 
 }
