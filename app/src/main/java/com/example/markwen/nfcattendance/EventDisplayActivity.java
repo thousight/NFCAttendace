@@ -250,7 +250,7 @@ public class EventDisplayActivity extends AppCompatActivity {
                 }
 
                 messagesReceivedArray.add(student_name);
-                adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
+                adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, messagesReceivedArray);
                 listViewStudents.setAdapter(adapter);
                 Intent restart = new Intent(this, EventDisplayActivity.class);
                 restart.putExtra("title", title);

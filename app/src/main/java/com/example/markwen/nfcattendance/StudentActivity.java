@@ -48,17 +48,20 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
                 studentName = editable.toString();
             }
         });
+
+        // Get NFC and check availability
         NfcManager manager = (NfcManager) getSystemService(Context.NFC_SERVICE);
         nfcAdapter = manager.getDefaultAdapter();
         if (nfcAdapter != null) {
-            //This will refer back to createNdefMessage for what it will send
+            // This will refer back to createNdefMessage for what it will send
             nfcAdapter.setNdefPushMessageCallback(this, this);
-
-            //This will be called if the message is sent successfully
+            // This will be called if the message is sent successfully
             nfcAdapter.setOnNdefPushCompleteCallback(this, this);
+            // Show NFC available
             Snackbar.make(findViewById(R.id.studentNameEditText), "NFC available on this device, go ahead and tap on your professor's device.", Snackbar.LENGTH_LONG).show();
         }
         else {
+            // NFC unavailable
             Snackbar.make(findViewById(R.id.studentNameEditText), "NFC not available on this device.", Snackbar.LENGTH_LONG).show();
         }
     }
