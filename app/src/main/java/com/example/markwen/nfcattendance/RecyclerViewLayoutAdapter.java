@@ -2,12 +2,14 @@ package com.example.markwen.nfcattendance;
 
 import android.content.Intent;
 import android.os.Environment;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,7 +44,7 @@ public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerView
         return eventNameList.size();
     }
 
-    public class EventViewHolder extends RecyclerView.ViewHolder {
+    class EventViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
         TextView eventName;
         EventViewHolder(final View itemView) {
@@ -52,27 +54,19 @@ public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerView
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    // Start new activity
                     Intent displayEventIntent = new Intent(itemView.getContext(), EventDisplayActivity.class);
-                    displayEventIntent.putExtra("title", eventName.getText());
-
-                    //write new file to hold title name
                     itemView.getContext().startActivity(displayEventIntent);
+
                     try {
                         File txtFile = new File(strSdPath + "/NFCAttendance/" + "title_holder.txt"); //make new file
                         FileOutputStream output = new FileOutputStream(txtFile, false);
                         OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
-                        try {
-
-                            String str = eventName.getText().toString(); //take title name and write to txt file
-                            myOutWriter.append(str);
-                            myOutWriter.close();
-                        } catch (Exception e) {
-                            //how you use this
-                            //Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                        }
-
+                        String str = eventName.getText().toString(); //take title name and write to txt file
+                        myOutWriter.append(str);
+                        myOutWriter.close();
                     } catch (Exception e) {
-                        //Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                        Toast.makeText(view.getContext(), e.toString(), Toast.LENGTH_LONG).show();
                     }
 
                 }
@@ -85,9 +79,9 @@ public class RecyclerViewLayoutAdapter extends RecyclerView.Adapter<RecyclerView
                     File file = new File(strSdPath + "/NFCAttendance/" + filename + ".txt"); // get file
                     file.delete(); // delete file
                     // update view
-                    int position = eventNameList.indexOf(filename);
                     eventNameList.remove(filename);
-                    notifyItemChanged(position);
+                    Snackbar.make(itemView, filename + " is deleted", Snackbar.LENGTH_LONG).show();
+                    notifyDataSetChanged();
                     return true;
                 }
             });

@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         studentCard = (CardView) findViewById(R.id.studentCard);
         professorCard = (CardView) findViewById(R.id.professorCard);
 
+        // Set onClick method for studentCard
         studentCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Set onClick method for professorCard
         professorCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

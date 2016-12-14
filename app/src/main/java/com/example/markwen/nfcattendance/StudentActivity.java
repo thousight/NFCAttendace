@@ -20,7 +20,7 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
     EditText studentNameEditText;
     String studentName;
     NfcAdapter nfcAdapter;
-    private String android_id;
+    private String deviceID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,8 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
         setContentView(R.layout.activity_student);
         setTitle("Student");
 
-        android_id = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+        // Get device ID
+        deviceID = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 
         studentNameEditText = (EditText) findViewById(R.id.studentNameEditText);
         studentNameEditText.addTextChangedListener(new TextWatcher() {
@@ -88,7 +89,7 @@ public class StudentActivity extends AppCompatActivity implements NfcAdapter.OnN
                 NdefRecord.TNF_WELL_KNOWN,
                 NdefRecord.RTD_TEXT,
                 new byte[0],
-                android_id.getBytes());
+                deviceID.getBytes());
         return records;
     }
 }

@@ -6,7 +6,6 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.FileObserver;
 import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,8 +23,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,18 +32,15 @@ import java.util.List;
 
 public class EventDisplayActivity extends AppCompatActivity {
     final String strSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-    public static FileObserver observer; //file observer to check for changes to the .txt file
     ArrayList<String> studentList; //arraylist to handle list of students
     ArrayList<String> messagesReceivedArray = new ArrayList<String>(); //arraylist to handle messages received through NFC
     TextView titleText, startTimeText, endTimeText, checkInStatus;
     ListView listViewStudents;
-    String title;
-    Long start_time;
-    Long end_time;
-    String students, devices;
+    Long start_time, end_time;
+    String title, students, devices;
     JSONObject event;
     FloatingActionButton backButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,16 +58,15 @@ public class EventDisplayActivity extends AppCompatActivity {
         checkInStatus = (TextView) findViewById(R.id.checkInStatusTextView);
         backButton = (FloatingActionButton) findViewById(R.id.backFAB);
 
-        //read title from title_holder file
-        File titleFile = new File(strSdPath + "/NFCAttendance/" + "title_holder.txt");
+        //read title from title_holder file and set it
+        File titleFile = new File(strSdPath + "/NFCAttendance/title_holder.txt");
         BufferedReader br;
-        String aDataRow = "";
-        String aBuffer = "";
+        String aDataRow;
         try {
             br = new BufferedReader(new FileReader(titleFile));
 
             while ((aDataRow = br.readLine()) != null) {
-                title += aDataRow + "\n";
+                title = aDataRow;
             }
             br.close();
 
@@ -82,17 +75,12 @@ public class EventDisplayActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
-
-
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), ProfessorActivity.class));
             }
         });
-
-        // Set title
-        title = mIntent.getStringExtra("title");
 
         listViewStudents = (ListView) findViewById(R.id.studentListView);
         studentList = new ArrayList<>();
@@ -121,6 +109,8 @@ public class EventDisplayActivity extends AppCompatActivity {
             startTimeText.setText("Start time: " + startDateTime.toString());
             endTimeText.setText("End time:   " + endDateTime.toString());
             Date localTime = new Date(System.currentTimeMillis());
+            // Checking if current time is in the event time interval
+            // if not, notify users that they cannot check in now
             if (!(startDateTime.compareTo(localTime) < 0 && endDateTime.compareTo(localTime) > 0)) {
                 checkInStatus.setText("You cannot check in now.");
             }
@@ -129,10 +119,16 @@ public class EventDisplayActivity extends AppCompatActivity {
             CharSequence errorMessage = e.getMessage();
             Snackbar.make(findViewById(R.id.activity_event_display), errorMessage, Snackbar.LENGTH_LONG).show();
         }
-
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        handleNfcIntent(getIntent());
+    }
+
     public void displayStudents(String list) {
-        // Trying to fix the problem when there is always an extra value up top
+        // Convert students list from string to arraylist
         List<String> array;
         if (list.equals("")){
             array = new ArrayList<>();
@@ -154,28 +150,30 @@ public class EventDisplayActivity extends AppCompatActivity {
 
             // Only perform actions when there are items in the array
             if(receivedArray != null) {
-                //Make sure you close all streams.
+                //read title from title_holder file and set it
                 BufferedReader br;
-                StringBuilder contentString = new StringBuilder();
+                File titleFile = new File(strSdPath + "/NFCAttendance/title_holder.txt");
+                String aDataRow;
                 try {
-                    br = new BufferedReader(new FileReader(strSdPath + "/NFCAttendance/title_hoder.txt"));
-                    String line = br.readLine();
-                    while ((line = br.readLine()) != null) {
-                        contentString.append(line);
+                    br = new BufferedReader(new FileReader(titleFile));
+
+                    while ((aDataRow = br.readLine()) != null) {
+                        title = aDataRow;
                     }
                     br.close();
                 }
                 catch (IOException e) {
-                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                String title = contentString.toString();
 
+                // Get the NFC messages
                 messagesReceivedArray = new ArrayList<>(); //clear string array
                 NdefMessage receivedMessage = (NdefMessage) receivedArray[0];
                 NdefRecord[] records = receivedMessage.getRecords();
                 String student_name = "";
                 String device_id = "";
                 int index_check = 0;
+
                 for (NdefRecord record:records) {
                     index_check++;
                     if (index_check % 2 == 0){ // Setting deviceID
@@ -187,7 +185,9 @@ public class EventDisplayActivity extends AppCompatActivity {
                     if (student_name.equals(getPackageName())) { continue; }
                 }
 
+
                 //read file to get students JSONArray to update
+                StringBuilder contentString = new StringBuilder();
                 try {
                     br = new BufferedReader(new FileReader(strSdPath + "/NFCAttendance/" + title + ".txt"));
                     String line;
@@ -206,11 +206,11 @@ public class EventDisplayActivity extends AppCompatActivity {
 
                     if (!(start_time < localTime && end_time > localTime)) {
                         // stop if local time is not in event time range
-                        Toast.makeText(this, "Not time to check in yet", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Not time to check in yet", Toast.LENGTH_LONG).show();
                         finish();
                     } else if (devices.contains(device_id)) {
-                        // if devices already existed in the list
-                        Toast.makeText(this, "This device is already used to check in", Toast.LENGTH_SHORT).show();
+                        // if deviceID already existed in the list
+                        Toast.makeText(this, "This device is already used to check in", Toast.LENGTH_LONG).show();
                         finish();
                     } else {
                         // Add student into StringArray students
@@ -227,7 +227,7 @@ public class EventDisplayActivity extends AppCompatActivity {
                         }
                     }
 
-                    //write the updated students array back into the file
+                    // write the updated students array back into the file
                     File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
                     txtFile.delete();
                     txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt"); //make new file
@@ -259,23 +259,4 @@ public class EventDisplayActivity extends AppCompatActivity {
             }
         }
     }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        handleNfcIntent(getIntent());
-    }
-
-    public static String convertStreamToString(InputStream is) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        reader.close();
-        return sb.toString();
-    }
-
 }

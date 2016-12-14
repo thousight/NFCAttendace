@@ -36,12 +36,12 @@ public class NewEventActivity extends AppCompatActivity {
         final View dialogView = View.inflate(this, R.layout.datetimepicker, null);
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 
+        // Get start time
         dialogView.findViewById(R.id.start_time_set).setOnClickListener(new View.OnClickListener() {
             //used code from http://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
             //for creating datetime picker display
             @Override
             public void onClick(View view) {
-
                 DatePicker datePicker = (DatePicker) dialogView.findViewById(R.id.date_picker);
                 TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.time_picker);
 
@@ -55,6 +55,8 @@ public class NewEventActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Start time saved", Toast.LENGTH_LONG).show();
             }
         });
+
+        // Get end time
         dialogView.findViewById(R.id.end_time_set).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,6 +74,8 @@ public class NewEventActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "End time saved", Toast.LENGTH_LONG).show();
             }
         });
+
+        // Dismiss the dialog
         dialogView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,12 +83,13 @@ public class NewEventActivity extends AppCompatActivity {
             }
         });
 
+        // Create event and go back to professor's activity
         createButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
                 EditText titleET = (EditText) findViewById(R.id.titleEditText);
-                String title = "";
-                title = titleET.getText().toString();
+                String title = titleET.getText().toString();
+
+                // Check user inputs and alert user if input is missing
                 if (title.equals("")) {
                     Snackbar.make(findViewById(R.id.activity_event), "Please enter a title", Snackbar.LENGTH_LONG).show();
                 } else if (start_time == 0L) {
@@ -95,29 +100,31 @@ public class NewEventActivity extends AppCompatActivity {
                     final File directory = new File(strSdPath + "/NFCAttendance/");
                     if (!directory.exists()){
                         directory.mkdir();
+                        Snackbar.make(findViewById(R.id.activity_event), title + " directory created at " + strSdPath + "/NFCAttendance", Snackbar.LENGTH_LONG).show();
                     }
-                    Snackbar.make(findViewById(R.id.activity_event), title + " directory created at " + strSdPath + "/NFCAttendance", Snackbar.LENGTH_LONG).show();
+
                     try {
                         File txtFile = new File(strSdPath + "/NFCAttendance/" + title + ".txt");
                         FileOutputStream output = new FileOutputStream(txtFile);
                         OutputStreamWriter myOutWriter = new OutputStreamWriter(output);
-                        try {
-                            JSONObject obj1 = new JSONObject();
-                            obj1.put("students", "");
-                            obj1.put("devices", "");
-                            obj1.put("end_time", end_time);
-                            obj1.put("start_time", start_time);
-                            obj1.put("title", title);
 
-                            String str = obj1.toString();
-                            myOutWriter.append(str);
-                            myOutWriter.close();
-                            Snackbar.make(findViewById(R.id.activity_event), "Data file written", Snackbar.LENGTH_LONG).show();
-                            moveToP(v);
-                        } catch (Exception e) {
-                            Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                        }
+                        // Creating new JSON object
+                        JSONObject obj1 = new JSONObject();
+                        obj1.put("students", "");
+                        obj1.put("devices", "");
+                        obj1.put("end_time", end_time);
+                        obj1.put("start_time", start_time);
+                        obj1.put("title", title);
 
+                        // Convert JSON object to String and save it into the file
+                        String str = obj1.toString();
+                        myOutWriter.append(str);
+                        myOutWriter.close();
+                        Snackbar.make(findViewById(R.id.activity_event), "Data file written", Snackbar.LENGTH_LONG).show();
+
+                        // move to professor activity
+                        Intent mIntent = new Intent(getApplicationContext(), ProfessorActivity.class);
+                        startActivity(mIntent);
                     } catch (Exception e) {
                         Snackbar.make(findViewById(R.id.activity_event), e.getMessage(), Snackbar.LENGTH_LONG).show();
                     }
@@ -130,9 +137,5 @@ public class NewEventActivity extends AppCompatActivity {
                 alertDialog.show();
             }
         });
-    }
-    public void moveToP(View v) {
-        Intent mIntent = new Intent(this, ProfessorActivity.class);
-        startActivity(mIntent);
     }
 }
